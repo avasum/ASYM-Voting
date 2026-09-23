@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>اجتماع شباب الأنبا صرابامون</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- الخطوط العربية (Cairo & Amiri) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Firebase SDKs (Compatibility Mode for Standalone Browser Apps) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                        amiri: ['Amiri', 'serif'],
+                    },
+                    colors: {
+                        darkbg: '#0f172a',
+                        darkcard: '#1e293b',
+                        darkborder: '#334155',
+                        lightbg: '#f1f5f9',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .hidden-app { display: none !important; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .dark .glass-nav {
+            background: rgba(30, 41, 59, 0.94);
+            border: 1px solid rgba(51, 65, 85, 0.85);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .gold-card {
+            border: 2px solid #f59e0b;
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%);
+            box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.3);
+        }
+        .dark .gold-card {
+            background: linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(30, 41, 59, 0.95) 100%);
+        }
+
+        .silver-card {
+            border: 2px solid #94a3b8;
+            background: linear-gradient(135deg, rgba(241, 245, 249, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%);
+            box-shadow: 0 10px 30px -5px rgba(148, 163, 184, 0.3);
+        }
+        .dark .silver-card {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.45) 0%, rgba(30, 41, 59, 0.95) 100%);
+        }
+
+        .bronze-card {
+            border: 2px solid #d97706;
+            background: linear-gradient(135deg, rgba(254, 215, 170, 0.7) 0%, rgba(255, 255, 255, 0.95) 100%);
+            box-shadow: 0 10px 30px -5px rgba(217, 119, 6, 0.25);
+        }
+        .dark .bronze-card {
+            background: linear-gradient(135deg, rgba(124, 45, 18, 0.45) 0%, rgba(30, 41, 59, 0.95) 100%);
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden bg-lightbg text-slate-800 dark:bg-darkbg dark:text-slate-100 flex flex-col relative font-sans select-none">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-5 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-[300] text-xs md:text-sm font-bold flex items-center gap-2 border border-slate-700/30">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+        <span id="toastMsg">تم الإجراء بنجاح</span>
+    </div>
+
+    <!-- Transparent Fixed Header -->
+    <header class="fixed top-1.5 md:top-3 left-2 right-2 md:left-4 md:right-4 z-40 mx-auto max-w-5xl glass-nav rounded-2xl md:rounded-3xl px-2.5 sm:px-3 md:px-4 py-1.5 md:py-2 flex items-center justify-between transition-all duration-300">
+        <div class="flex-1 flex items-center justify-start gap-1 sm:gap-1.5 min-w-0 z-10">
+            <button onclick="toggleTheme()" id="themeToggleBtn" class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-slate-100/90 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200 shadow-xs active:scale-90 flex items-center justify-center shrink-0" title="Toggle Theme">
+            </button>
+            <button onclick="toggleAdminView()" id="adminToggleBtn" class="h-8 md:h-9 px-2 sm:px-2.5 rounded-xl bg-blue-50/90 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-300 transition text-[10.5px] sm:text-xs font-black flex items-center gap-1 shadow-xs active:scale-95 border border-blue-200/80 dark:border-blue-800/80 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                <span id="adminToggleText">Admin</span>
+            </button>
+        </div>
+        
+        <div class="shrink-0 max-w-[50%] xs:max-w-[56%] sm:max-w-[62%] text-center px-1">
+            <h1 id="navTitle" class="text-[11px] xs:text-xs sm:text-sm md:text-base font-black tracking-tight text-slate-900 dark:text-white leading-tight truncate cursor-pointer transition-colors hover:text-blue-600 dark:hover:text-blue-400 select-none meeting-name-display" onclick="returnHome()" title="الصفحة الرئيسية">
+                اجتماع شباب الأنبا صرابامون
+            </h1>
+        </div>
+
+        <div class="flex-1 flex items-center justify-end min-w-0 z-10">
+            <img id="navLogo" src="logo.png" alt="Event Logo" 
+                 class="logo-display h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 object-contain rounded-full shadow-xs bg-white dark:bg-slate-800 p-0.5 border border-slate-200/90 dark:border-slate-700/90 cursor-pointer transition hover:scale-105 active:scale-90 shrink-0"
+                 onclick="refreshApp()"
+                 title="إعادة تحميل الصفحة (Refresh)"
+                 onerror="handleImageFallback(this)">
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 overflow-hidden relative pt-[54px] md:pt-[70px] flex flex-col max-w-5xl mx-auto w-full px-2 sm:px-4 md:px-5">
+        
+        <!-- SECTION 1: VOTER INTERFACE -->
+        <div id="voterInterface" class="flex-1 flex flex-col overflow-hidden pb-2 pt-1">
+            
+            <div class="flex items-center justify-center gap-2 my-1.5 shrink-0 px-1">
+                <button id="tabBtnVotes" onclick="switchPublicTab('voting')" class="flex-1 max-w-[160px] py-1.5 md:py-2 px-4 rounded-xl font-black text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-1.5 bg-white dark:bg-darkcard text-blue-600 dark:text-blue-400 border-2 border-blue-500 shadow-md scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>Voting</span>
+                </button>
+                <button id="tabBtnRanking" onclick="switchPublicTab('ranking')" class="flex-1 max-w-[160px] py-1.5 md:py-2 px-4 rounded-xl font-black text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    <span>Ranking</span>
+                </button>
+            </div>
+
+            <!-- TAB VIEW A: VOTING -->
+            <div id="viewPublicVotes" class="flex-1 overflow-y-auto pb-20 pt-1 space-y-3 px-1">
+                <div class="bg-white dark:bg-darkcard p-2 md:p-3 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm flex items-center gap-1.5">
+                    <div class="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-mono font-black text-sm shrink-0">
+                        Code
+                    </div>
+                    <div class="relative flex-1 min-w-0">
+                        <input type="text" id="joinCodeInput" placeholder="VOTE-103" 
+                               oninput="handleVoteCodeLiveFilter(this.value)"
+                               onkeydown="if(event.key === 'Enter') joinSessionByCode()"
+                               class="w-full px-2.5 py-1.5 pl-7 uppercase bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-center font-mono font-bold text-xs md:text-sm tracking-wider outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="clearCodeBtn" onclick="clearVoteCodeFilter()" class="hidden absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold p-1">
+                            ✕
+                        </button>
+                    </div>
+                    <button onclick="joinSessionByCode()" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-3 py-1.5 rounded-xl text-xs md:text-sm shadow-md transition active:scale-95 shrink-0 flex items-center gap-1">
+                        <span>بحث</span>
+                    </button>
+                </div>
+
+                <div id="activeSessionVoterContainer" class="space-y-3"></div>
+
+                <div class="pt-4 pb-6 flex flex-col items-center justify-center opacity-80 cursor-pointer" onclick="refreshApp()">
+                    <img src="logo.png" alt="Logo" class="logo-display h-16 w-16 md:h-20 md:w-20 object-contain rounded-2xl p-1.5 bg-transparent border border-slate-200 dark:border-slate-700 shadow-sm" onerror="handleImageFallback(this)">
+                    <span class="mt-1.5 text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-wider meeting-name-display">اجتماع شباب الأنبا صرابامون</span>
+                </div>
+            </div>
+
+            <!-- TAB VIEW B: RANKING -->
+            <div id="viewPublicRanking" class="hidden-app flex-1 overflow-y-auto pb-20 pt-1 space-y-3 px-1">
+                <div id="voterRankingCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-4"></div>
+
+                <div class="pt-4 pb-6 flex flex-col items-center justify-center opacity-80 cursor-pointer" onclick="refreshApp()">
+                    <img src="logo.png" alt="Logo" class="logo-display h-16 w-16 md:h-20 md:w-20 object-contain rounded-2xl p-1.5 bg-transparent border border-slate-200 dark:border-slate-700 shadow-sm" onerror="handleImageFallback(this)">
+                    <span class="mt-1.5 text-[11px] font-black text-slate-500 dark:text-slate-400 tracking-wider meeting-name-display">اجتماع شباب الأنبا صرابامون</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 2: ADMIN DASHBOARD -->
+        <div id="adminInterface" class="hidden-app flex-1 flex flex-col overflow-hidden pb-3 pt-1">
+            
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1.5 shrink-0 border-b border-slate-200 dark:border-slate-800 no-scrollbar px-1">
+                <button onclick="switchAdminTab('sessions')" id="tabSessions" class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap bg-blue-600 text-white shadow-md">
+                    Live Votes
+                </button>
+                <button onclick="switchAdminTab('results')" id="tabResults" class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap bg-white dark:bg-darkcard text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    Results
+                </button>
+                <button onclick="switchAdminTab('ranking')" id="tabRanking" class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap bg-white dark:bg-darkcard text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    Ranking
+                </button>
+                <button onclick="switchAdminTab('hierarchy')" id="tabHierarchy" class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap bg-white dark:bg-darkcard text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    Hierarchy
+                </button>
+                <button onclick="switchAdminTab('settings')" id="tabSettings" class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap bg-white dark:bg-darkcard text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    Settings
+                </button>
+            </div>
+
+            <!-- Tab Content: Live Votes -->
+            <div id="adminTabSessions" class="admin-subview flex-1 overflow-y-auto space-y-3 pt-2.5 px-1 pb-16">
+                <div class="bg-white dark:bg-darkcard p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm flex items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-xs md:text-sm font-black text-slate-800 dark:text-white">Create Vote</h3>
+                    </div>
+                    <button onclick="openCreateSessionModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-black px-3.5 py-1.5 rounded-xl text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1 shrink-0">
+                        <span>+ New Vote</span>
+                    </button>
+                </div>
+
+                <div id="adminSessionsList" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Tab Content: Results -->
+            <div id="adminTabResults" class="admin-subview hidden-app flex-1 overflow-y-auto space-y-3 pt-2.5 px-1 pb-16">
+                <div class="relative w-full">
+                    <input type="text" id="searchAdminTeams" oninput="renderAdminResults(this.value)" placeholder="Search team or session..." 
+                        class="w-full py-2 px-3 bg-white dark:bg-darkcard text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-darkborder rounded-xl outline-none text-xs font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+                </div>
+                <div id="adminTeamCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+
+            <!-- Tab Content: Ranking -->
+            <div id="adminTabRanking" class="admin-subview hidden-app flex-1 overflow-y-auto space-y-3 pt-2.5 px-1 pb-16">
+                <div class="bg-white dark:bg-darkcard p-3 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm space-y-2">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <span class="text-xs font-black text-slate-800 dark:text-white">اختر الـ Cycles & Rounds</span>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="selectAllScope(true)" class="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-[11px] font-bold transition">
+                                الكل
+                            </button>
+                            <button onclick="selectAllScope(false)" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[11px] font-bold transition">
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="multiScopeContainer" class="max-h-48 overflow-y-auto p-1.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-1.5"></div>
+                </div>
+
+                <div id="adminRankingGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </div>
+
+            <!-- Tab Content: Hierarchy -->
+            <div id="adminTabHierarchy" class="admin-subview hidden-app flex-1 overflow-y-auto space-y-3 pt-2.5 px-1 pb-16">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    
+                    <!-- 1. Cycles Manager -->
+                    <div class="bg-white dark:bg-darkcard p-3 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm flex flex-col h-[380px] md:h-[450px]">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div>
+                                <h4 class="font-black text-xs md:text-sm text-slate-800 dark:text-white">Cycles</h4>
+                                <span class="text-[9px] text-slate-400">Cascade delete applies</span>
+                            </div>
+                            <button onclick="openCycleModal(null)" class="px-2 py-1 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-lg text-xs font-bold transition">
+                                + Add
+                            </button>
+                        </div>
+                        <div id="cyclesListContainer" class="flex-1 overflow-y-auto pt-2 space-y-1.5 pr-1"></div>
+                    </div>
+
+                    <!-- 2. Rounds Manager -->
+                    <div class="bg-white dark:bg-darkcard p-3 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm flex flex-col h-[380px] md:h-[450px]">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div>
+                                <h4 class="font-black text-xs md:text-sm text-slate-800 dark:text-white">Rounds</h4>
+                                <span class="text-[9px] text-slate-400">Nested under cycle</span>
+                            </div>
+                            <button onclick="openRoundModal(null)" class="px-2 py-1 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-lg text-xs font-bold transition">
+                                + Add
+                            </button>
+                        </div>
+                        <div class="pt-1.5">
+                            <select id="roundsFilterCycle" onchange="renderRoundsManager()" class="w-full p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none mb-1.5">
+                            </select>
+                        </div>
+                        <div id="roundsListContainer" class="flex-1 overflow-y-auto space-y-1.5 pr-1"></div>
+                    </div>
+
+                    <!-- 3. Teams Manager -->
+                    <div class="bg-white dark:bg-darkcard p-3 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm flex flex-col h-[380px] md:h-[450px]">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div>
+                                <h4 class="font-black text-xs md:text-sm text-slate-800 dark:text-white">Teams</h4>
+                                <span class="text-[9px] text-slate-400">Name and logo</span>
+                            </div>
+                            <button onclick="openTeamModal(null)" class="px-2 py-1 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-lg text-xs font-bold transition">
+                                + Add
+                            </button>
+                        </div>
+                        <div id="teamsListContainer" class="flex-1 overflow-y-auto pt-2 space-y-1.5 pr-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Settings -->
+            <div id="adminTabSettings" class="admin-subview hidden-app flex-1 overflow-y-auto space-y-3 pt-2.5 px-1 pb-16">
+                <div class="max-w-xl mx-auto bg-white dark:bg-darkcard p-4 md:p-5 rounded-3xl border border-slate-200 dark:border-darkborder shadow-sm space-y-3">
+                    <h3 class="text-xs md:text-sm font-black text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
+                        Settings & Branding
+                    </h3>
+
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">Event Title:</label>
+                        <input type="text" id="settingEventName" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">Event Logo (PNG with Transparency):</label>
+                        <div class="flex items-center gap-2.5">
+                            <img id="settingLogoPreview" src="logo.png" class="w-10 h-10 rounded-xl object-contain bg-transparent border p-1" onerror="handleImageFallback(this)">
+                            <input type="file" id="settingLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="text-[11px] text-slate-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-200">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">Admin Password:</label>
+                        <input type="password" id="settingAdminPassword" placeholder="New Password (optional)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-1.5">
+                        <button onclick="saveAppSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-2 rounded-xl shadow-md transition active:scale-95 text-xs">
+                            Save Settings
+                        </button>
+                        <button onclick="clearAllSystemData()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 font-black rounded-xl text-xs transition border border-rose-200 dark:border-rose-800">
+                            Reset All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL: Confirmation Dialog -->
+    <div id="confirmDeleteModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[250] hidden">
+        <div class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-darkborder mx-4 text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-600 mx-auto flex items-center justify-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </div>
+            <h3 id="confirmDeleteTitle" class="text-sm md:text-base font-black text-slate-800 dark:text-white mb-1">تأكيد الحذف</h3>
+            <p id="confirmDeleteMessage" class="text-xs text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">هل أنت متأكد من تنفيذ هذا الإجراء؟ لا يمكن التراجع عنه.</p>
+            <div class="flex items-center gap-2">
+                <button id="confirmDeleteExecuteBtn" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 rounded-xl shadow-md transition active:scale-95 text-xs">
+                    نعم، حذف
+                </button>
+                <button type="button" onclick="closeConfirmDeleteModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 text-slate-600 font-bold rounded-xl text-xs">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Admin Login -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[210] hidden">
+        <div class="bg-white dark:bg-darkcard p-6 md:p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center border-t-4 border-blue-500 mx-4">
+            <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white mb-4">Admin Login</h3>
+            
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <input type="password" id="adminPasswordInput" class="w-full px-4 py-3 border border-slate-300 dark:border-darkborder dark:bg-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center font-mono tracking-widest text-lg" placeholder="Password" required>
+                <p id="adminLoginError" class="text-rose-500 text-xs font-bold hidden">Invalid Password</p>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow-md transition active:scale-95 text-xs md:text-sm">
+                        Login
+                    </button>
+                    <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 text-slate-600 font-bold rounded-xl text-xs">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Create or Edit Session -->
+    <div id="createSessionModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[220] hidden">
+        <div class="bg-white dark:bg-darkcard p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-lg border border-slate-200 dark:border-darkborder mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 id="sessionModalHeader" class="text-base md:text-lg font-black text-slate-800 dark:text-white mb-4 border-b pb-3 border-slate-100 dark:border-slate-800">
+                Setup Vote Session
+            </h3>
+            <form onsubmit="saveSessionForm(event)" class="space-y-3.5 text-right">
+                <input type="hidden" id="modalSessionEditId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Vote Title:</label>
+                    <input type="text" id="modalSessionTitle" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500" placeholder="Session presentation title">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cycle:</label>
+                        <select id="modalSessionCycle" onchange="updateModalRoundsDropdown()" required class="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Round:</label>
+                        <select id="modalSessionRound" required class="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none"></select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Team:</label>
+                    <select id="modalSessionTeam" required class="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none"></select>
+                </div>
+
+                <div class="flex items-center gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 rounded-xl shadow-md transition active:scale-95 text-xs md:text-sm">
+                        Save
+                    </button>
+                    <button type="button" onclick="closeCreateSessionModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 text-slate-600 font-bold rounded-xl text-xs">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Team Add/Edit -->
+    <div id="teamModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[225] hidden">
+        <div class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-darkborder mx-4">
+            <h3 id="teamModalTitle" class="text-base font-black text-slate-800 dark:text-white mb-3">Add Team</h3>
+            <form onsubmit="saveTeamForm(event)" class="space-y-3.5">
+                <input type="hidden" id="modalTeamId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Team Name:</label>
+                    <input type="text" id="modalTeamName" required placeholder="Team Name" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Team Logo Image File (PNG Transparent):</label>
+                    <div class="flex items-center gap-3">
+                        <img id="modalTeamLogoPreview" src="logo.png" class="w-12 h-12 rounded-xl object-contain bg-transparent border p-1" onerror="handleImageFallback(this)">
+                        <input type="file" id="modalTeamFileInput" accept="image/*" onchange="handleTeamLogoUpload(event)" class="text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-slate-200">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-2 rounded-xl shadow-md transition text-xs md:text-sm">Save</button>
+                    <button type="button" onclick="closeTeamModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Cycle Add/Edit -->
+    <div id="cycleModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[226] hidden">
+        <div class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-darkborder mx-4">
+            <h3 id="cycleModalTitle" class="text-base font-black text-slate-800 dark:text-white mb-3">Add Cycle</h3>
+            <form onsubmit="saveCycleForm(event)" class="space-y-3.5">
+                <input type="hidden" id="modalCycleId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cycle Name:</label>
+                    <input type="text" id="modalCycleName" required placeholder="e.g. الموسم الأول" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-2 rounded-xl shadow-md transition text-xs md:text-sm">Save</button>
+                    <button type="button" onclick="closeCycleModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Round Add/Edit -->
+    <div id="roundModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[227] hidden">
+        <div class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-darkborder mx-4">
+            <h3 id="roundModalTitle" class="text-base font-black text-slate-800 dark:text-white mb-3">Add Round</h3>
+            <form onsubmit="saveRoundForm(event)" class="space-y-3.5">
+                <input type="hidden" id="modalRoundId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cycle:</label>
+                    <select id="modalRoundCycleSelect" class="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Round Name:</label>
+                    <input type="text" id="modalRoundName" required placeholder="e.g. الأسبوع الأول" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-2 rounded-xl shadow-md transition text-xs md:text-sm">Save</button>
+                    <button type="button" onclick="closeRoundModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: QR Code & Share -->
+    <div id="qrModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[230] hidden">
+        <div class="bg-white dark:bg-darkcard p-6 rounded-3xl shadow-2xl w-full max-w-sm text-center border border-slate-200 dark:border-darkborder mx-4">
+            <h3 id="qrModalTeamName" class="text-base font-black text-slate-900 dark:text-white">اسم الفريق</h3>
+            <p id="qrModalSessionTitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-4">عنوان الجلسة</p>
+            
+            <div id="realQrContainer" class="p-3 bg-white rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner flex items-center justify-center mx-auto mb-4 w-[214px] h-[214px]"></div>
+            
+            <p id="qrDirectLinkDisplay" class="text-[11px] font-mono text-slate-400 break-all bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800 mb-4 select-all"></p>
+
+            <div class="flex items-center gap-2">
+                <button onclick="copyVoteDirectLink()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black py-2 rounded-xl text-xs shadow-md transition active:scale-95">
+                    Copy Direct Link
+                </button>
+                <button onclick="closeQrModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Drill Down Votes Log -->
+    <div id="drillDownModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[230] hidden">
+        <div class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-lg border border-slate-200 dark:border-darkborder mx-4 flex flex-col max-h-[85vh]">
+            <div class="pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                    <h3 id="drillDownTitle" class="text-sm md:text-base font-black text-slate-800 dark:text-white">Votes Log</h3>
+                    <p id="drillDownStats" class="text-xs text-blue-600 dark:text-blue-400 font-bold">Count: 0 • Score: 0%</p>
+                </div>
+                <button onclick="resetCurrentSessionVotes()" class="text-rose-500 hover:text-rose-700 text-xs font-bold px-2 py-1 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
+                    Reset All Votes
+                </button>
+            </div>
+            
+            <div id="drillDownVotesList" class="flex-1 overflow-y-auto space-y-2 py-3 pr-1"></div>
+
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button onclick="closeDrillDownModal()" class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-2 rounded-xl text-xs">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Firebase Configuration & Initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyCg3HSBz1sQYVC7fgeLw48PZjUBVzyj8sc",
+            authDomain: "voting-f04a1.firebaseapp.com",
+            databaseURL: "https://voting-f04a1-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "voting-f04a1",
+            storageBucket: "voting-f04a1.firebasestorage.app",
+            messagingSenderId: "288200622324",
+            appId: "1:288200622324:web:ab8ff7dbaea8a07b081ea1"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const dbRef = db.ref('voting_system_data');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /* ========================================================
+           STATE & REALTIME SYNC ADAPTER
+           ======================================================== */
+        const CLEAN_EMPTY_DATA = {
+            cycles: [],
+            rounds: [],
+            teams: [],
+            sessions: [],
+            votes: [],
+            settings: {
+                eventName: "اجتماع شباب الأنبا صرابامون",
+                eventLogo: "logo.png",
+                adminPasswordHash: "123Admin",
+                activeRankingScope: { all: true, cycles: [], rounds: [] }
+            }
+        };
+
+        let appData = JSON.parse(JSON.stringify(CLEAN_EMPTY_DATA));
+        let isAdminLoggedIn = false;
+        let activePublicTab = 'voting';
+        let activeAdminTab = 'sessions';
+        let currentDrillSessionId = null;
+        let currentQrUrl = "";
+        let pendingDeleteAction = null;
+        let voterCodeFilter = "";
+
+        // دالة إرسال التحديثات السحابية لقاعدة البيانات
+        function persistData() {
+            dbRef.set(appData);
+        }
+
+        // الاستماع للتحديثات اللحظية من جميع الأجهزة (Realtime Listener)
+        dbRef.on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                appData = val;
+                if (!appData.cycles) appData.cycles = [];
+                if (!appData.rounds) appData.rounds = [];
+                if (!appData.teams) appData.teams = [];
+                if (!appData.sessions) appData.sessions = [];
+                if (!appData.votes) appData.votes = [];
+                if (!appData.settings) appData.settings = CLEAN_EMPTY_DATA.settings;
+                if (!appData.settings.activeRankingScope) appData.settings.activeRankingScope = { all: true, cycles: [], rounds: [] };
+            } else {
+                persistData();
+            }
+            updateUI();
+        });
+
+        /* ========================================================
+           CUSTOM IN-APP CONFIRMATION MODAL
+           ======================================================== */
+        function askConfirmation(title, message, onConfirm) {
+            document.getElementById('confirmDeleteTitle').innerText = title;
+            document.getElementById('confirmDeleteMessage').innerText = message;
+            pendingDeleteAction = onConfirm;
+            const btn = document.getElementById('confirmDeleteExecuteBtn');
+            btn.onclick = () => {
+                if (pendingDeleteAction) pendingDeleteAction();
+                closeConfirmDeleteModal();
+            };
+            document.getElementById('confirmDeleteModal').classList.remove('hidden');
+        }
+
+        function closeConfirmDeleteModal() {
+            document.getElementById('confirmDeleteModal').classList.add('hidden');
+            pendingDeleteAction = null;
+        }
+
+        function clearAllSystemData() {
+            askConfirmation(
+                "تصفير النظام بالكامل",
+                "هل أنت متأكد من مسح جميع البيانات؟ سيتم مسح الدورات، الجولات، الفرق، وكافة الـ Votes وسيعود النظام فارغاً تماماً.",
+                () => {
+                    appData = JSON.parse(JSON.stringify(CLEAN_EMPTY_DATA));
+                    persistData();
+                    showToast("تم تصفير النظام بالكامل");
+                }
+            );
+        }
+
+        function getVoterToken() {
+            let token = localStorage.getItem('voter_unique_token');
+            if (!token) {
+                token = 'VT-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now();
+                localStorage.setItem('voter_unique_token', token);
+            }
+            return token;
+        }
+
+        function getSimulatedClientIp() {
+            let ip = localStorage.getItem('voter_simulated_ip');
+            if (!ip) {
+                ip = `192.168.1.${Math.floor(Math.random() * 240) + 10}`;
+                localStorage.setItem('voter_simulated_ip', ip);
+            }
+            return ip;
+        }
+
+        /* ========================================================
+           MATHEMATICAL ENGINE
+           ======================================================== */
+        function calculateSessionPercent(sessionId) {
+            const sessionVotes = appData.votes.filter(v => v.sessionId === sessionId);
+            const count = sessionVotes.length;
+            if (count === 0) return { percent: 0, count: 0, sum: 0, average: 0 };
+            
+            const sum = sessionVotes.reduce((acc, curr) => acc + curr.rating, 0);
+            const percent = ((sum) / (count * 10)) * 100;
+            const average = sum / count;
+            return {
+                percent: Math.round(percent * 10) / 10,
+                count: count,
+                sum: sum,
+                average: Math.round(average * 10) / 10
+            };
+        }
+
+        function calculateOverallTeamPercent(teamId, customScope = null) {
+            let teamSessions = appData.sessions.filter(s => s.teamId === teamId);
+            const scope = customScope || appData.settings.activeRankingScope || { all: true, cycles: [], rounds: [] };
+
+            if (!scope.all) {
+                const allowedCycles = scope.cycles || [];
+                const allowedRounds = scope.rounds || [];
+                teamSessions = teamSessions.filter(s => {
+                    return allowedCycles.includes(s.cycleId) || allowedRounds.includes(s.roundId);
+                });
+            }
+
+            if (teamSessions.length === 0) return { overallPercent: 0, sessionsPresented: 0, totalVotes: 0, totalSessions: 0 };
+
+            let totalPercentSum = 0;
+            let validSessionsCount = 0;
+            let totalVotesCount = 0;
+
+            teamSessions.forEach(session => {
+                const stats = calculateSessionPercent(session.id);
+                totalVotesCount += stats.count;
+                if (stats.count > 0) {
+                    totalPercentSum += stats.percent;
+                    validSessionsCount++;
+                }
+            });
+
+            const overallPercent = validSessionsCount > 0 ? (totalPercentSum / validSessionsCount) : 0;
+            return {
+                overallPercent: Math.round(overallPercent * 10) / 10,
+                sessionsPresented: validSessionsCount,
+                totalSessions: teamSessions.length,
+                totalVotes: totalVotesCount
+            };
+        }
+
+        function hasUserVotedInSession(sessionId) {
+            const token = getVoterToken();
+            const ip = getSimulatedClientIp();
+            return appData.votes.some(v => v.sessionId === sessionId && (v.voterToken === token || v.voterIp === ip));
+        }
+
+        function getUserVoteForSession(sessionId) {
+            const token = getVoterToken();
+            const ip = getSimulatedClientIp();
+            return appData.votes.find(v => v.sessionId === sessionId && (v.voterToken === token || v.voterIp === ip));
+        }
+
+        function castVote(sessionId, rating) {
+            if (rating < 5 || rating > 10) {
+                showToast("التقييم يجب أن يكون بين 5 و 10 فقط!");
+                return;
+            }
+
+            const session = appData.sessions.find(s => s.id === sessionId);
+            if (!session || session.status !== 'ACTIVE') {
+                showToast("هذا الـ Vote مغلق أو غير متاح حالياً!");
+                return;
+            }
+
+            if (hasUserVotedInSession(sessionId)) {
+                showToast("عفواً! لقد سجلت صوتك بالفعل في هذا الـ Vote.");
+                return;
+            }
+
+            const newVote = {
+                id: 'v-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+                sessionId: sessionId,
+                rating: parseInt(rating),
+                voterIp: getSimulatedClientIp(),
+                voterToken: getVoterToken(),
+                createdAt: Date.now()
+            };
+
+            appData.votes.push(newVote);
+            persistData();
+            showToast(`تم تسجيل صوتك بنجاح (${rating}/10)`);
+        }
+
+        /* ========================================================
+           CASCADE DELETIONS
+           ======================================================== */
+        function deleteCycle(cycleId) {
+            const cycle = appData.cycles.find(c => c.id === cycleId);
+            askConfirmation(
+                "حذف الدورة",
+                `هل أنت متأكد من حذف ${cycle?.name || 'الدورة'}؟ سيتم حذف كافة الجولات والـ Votes التابعة لها تلقائياً.`,
+                () => {
+                    const roundsToDelete = appData.rounds.filter(r => r.cycleId === cycleId).map(r => r.id);
+                    const sessionsToDelete = appData.sessions.filter(s => s.cycleId === cycleId || roundsToDelete.includes(s.roundId)).map(s => s.id);
+                    
+                    appData.votes = appData.votes.filter(v => !sessionsToDelete.includes(v.sessionId));
+                    appData.sessions = appData.sessions.filter(s => !sessionsToDelete.includes(s.id));
+                    appData.rounds = appData.rounds.filter(r => r.cycleId !== cycleId);
+                    appData.cycles = appData.cycles.filter(c => c.id !== cycleId);
+
+                    if (appData.settings.activeRankingScope) {
+                        appData.settings.activeRankingScope.cycles = (appData.settings.activeRankingScope.cycles || []).filter(id => id !== cycleId);
+                        appData.settings.activeRankingScope.rounds = (appData.settings.activeRankingScope.rounds || []).filter(id => !roundsToDelete.includes(id));
+                    }
+
+                    persistData();
+                    showToast("تم حذف الدورة وتوابعها بنجاح");
+                }
+            );
+        }
+
+        function deleteRound(roundId) {
+            const round = appData.rounds.find(r => r.id === roundId);
+            askConfirmation(
+                "حذف الجولة",
+                `هل أنت متأكد من حذف ${round?.name || 'الجولة'}؟ سيتم حذف كافة الـ Votes التابعة لها تلقائياً.`,
+                () => {
+                    const sessionsToDelete = appData.sessions.filter(s => s.roundId === roundId).map(s => s.id);
+                    appData.votes = appData.votes.filter(v => !sessionsToDelete.includes(v.sessionId));
+                    appData.sessions = appData.sessions.filter(s => !sessionsToDelete.includes(s.id));
+                    appData.rounds = appData.rounds.filter(r => r.id !== roundId);
+
+                    if (appData.settings.activeRankingScope) {
+                        appData.settings.activeRankingScope.rounds = (appData.settings.activeRankingScope.rounds || []).filter(id => id !== roundId);
+                    }
+
+                    persistData();
+                    showToast("تم حذف الجولة وتوابعها بنجاح");
+                }
+            );
+        }
+
+        function deleteTeam(teamId) {
+            const team = appData.teams.find(t => t.id === teamId);
+            askConfirmation(
+                "حذف الفريق",
+                `هل أنت متأكد من حذف ${team?.name || 'الفريق'}؟ سيتم حذف جميع جلسات التقييم التابعة له.`,
+                () => {
+                    const sessionsToDelete = appData.sessions.filter(s => s.teamId === teamId).map(s => s.id);
+                    appData.votes = appData.votes.filter(v => !sessionsToDelete.includes(v.sessionId));
+                    appData.sessions = appData.sessions.filter(s => !sessionsToDelete.includes(s.id));
+                    appData.teams = appData.teams.filter(t => t.id !== teamId);
+
+                    persistData();
+                    showToast("تم حذف الفريق بنجاح");
+                }
+            );
+        }
+
+        function deleteSession(sessionId) {
+            askConfirmation(
+                "حذف جلسة Vote",
+                "هل أنت متأكد من حذف هذا الـ Vote بالكامل مع أصواته؟",
+                () => {
+                    appData.votes = appData.votes.filter(v => v.sessionId !== sessionId);
+                    appData.sessions = appData.sessions.filter(s => s.id !== sessionId);
+                    persistData();
+                    showToast("تم حذف الـ Vote بنجاح");
+                }
+            );
+        }
+
+        function deleteSingleVote(voteId) {
+            askConfirmation(
+                "حذف الصوت",
+                "هل تريد حذف هذا الصوت الفردي نهائياً من السجل؟",
+                () => {
+                    appData.votes = appData.votes.filter(v => v.id !== voteId);
+                    persistData();
+                    if (currentDrillSessionId) openDrillDownModal(currentDrillSessionId);
+                    showToast("تم حذف الصوت");
+                }
+            );
+        }
+
+        function resetCurrentSessionVotes() {
+            if (!currentDrillSessionId) return;
+            askConfirmation(
+                "تصفير أصوات الجلسة",
+                "هل أنت متأكد من تصفير وحذف جميع الأصوات المسجلة لهذه الجلسة؟",
+                () => {
+                    appData.votes = appData.votes.filter(v => v.sessionId !== currentDrillSessionId);
+                    persistData();
+                    openDrillDownModal(currentDrillSessionId);
+                    showToast("تم تصفير أصوات الجلسة بنجاح");
+                }
+            );
+        }
+
+        function toggleSessionStatus(sessionId) {
+            const s = appData.sessions.find(x => x.id === sessionId);
+            if (!s) return;
+            s.status = (s.status === 'ACTIVE') ? 'CLOSED' : 'ACTIVE';
+            persistData();
+            showToast(s.status === 'ACTIVE' ? "Vote Opened (Live)" : "Vote Closed");
+        }
+
+        /* ========================================================
+           ENTITIES CRUD
+           ======================================================== */
+        function openCycleModal(cycleId = null) {
+            const modal = document.getElementById('cycleModal');
+            if (cycleId) {
+                const cycle = appData.cycles.find(c => c.id === cycleId);
+                if (!cycle) return;
+                document.getElementById('cycleModalTitle').innerText = "Edit Cycle";
+                document.getElementById('modalCycleId').value = cycle.id;
+                document.getElementById('modalCycleName').value = cycle.name;
+            } else {
+                document.getElementById('cycleModalTitle').innerText = "Add Cycle";
+                document.getElementById('modalCycleId').value = "";
+                document.getElementById('modalCycleName').value = "";
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => document.getElementById('modalCycleName').focus(), 60);
+        }
+
+        function closeCycleModal() {
+            document.getElementById('cycleModal').classList.add('hidden');
+        }
+
+        function saveCycleForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('modalCycleId').value;
+            const name = document.getElementById('modalCycleName').value.trim();
+            if (!name) return;
+
+            const isDuplicate = appData.cycles.some(c => c.id !== id && c.name.trim().toLowerCase() === name.toLowerCase());
+            if (isDuplicate) {
+                showToast("عفواً! يوجد Cycle أخرى بنفس هذا الاسم بالفعل.");
+                return;
+            }
+
+            if (id) {
+                const c = appData.cycles.find(x => x.id === id);
+                if (c) c.name = name;
+                showToast("Cycle Updated");
+            } else {
+                appData.cycles.push({
+                    id: 'c-' + Date.now(),
+                    name: name,
+                    createdAt: Date.now()
+                });
+                showToast("Cycle Added");
+            }
+            persistData();
+            closeCycleModal();
+        }
+
+        function openRoundModal(roundId = null) {
+            if (appData.cycles.length === 0) {
+                showToast("يرجى إضافة Cycle واحدة على الأقل أولاً!");
+                return;
+            }
+            const modal = document.getElementById('roundModal');
+            const select = document.getElementById('modalRoundCycleSelect');
+            select.innerHTML = appData.cycles.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            if (roundId) {
+                const round = appData.rounds.find(r => r.id === roundId);
+                if (!round) return;
+                document.getElementById('roundModalTitle').innerText = "Edit Round";
+                document.getElementById('modalRoundId').value = round.id;
+                select.value = round.cycleId;
+                document.getElementById('modalRoundName').value = round.name;
+            } else {
+                document.getElementById('roundModalTitle').innerText = "Add Round";
+                document.getElementById('modalRoundId').value = "";
+                document.getElementById('modalRoundName').value = "";
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => document.getElementById('modalRoundName').focus(), 60);
+        }
+
+        function closeRoundModal() {
+            document.getElementById('roundModal').classList.add('hidden');
+        }
+
+        function saveRoundForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('modalRoundId').value;
+            const cycleId = document.getElementById('modalRoundCycleSelect').value;
+            const name = document.getElementById('modalRoundName').value.trim();
+            if (!name || !cycleId) return;
+
+            const isDuplicate = appData.rounds.some(r => r.id !== id && r.cycleId === cycleId && r.name.trim().toLowerCase() === name.toLowerCase());
+            if (isDuplicate) {
+                showToast("عفواً! توجد Round أخرى بنفس هذا الاسم داخل نفس الـ Cycle.");
+                return;
+            }
+
+            if (id) {
+                const r = appData.rounds.find(x => x.id === id);
+                if (r) {
+                    r.name = name;
+                    r.cycleId = cycleId;
+                }
+                showToast("Round Updated");
+            } else {
+                appData.rounds.push({
+                    id: 'r-' + Date.now(),
+                    cycleId: cycleId,
+                    name: name,
+                    createdAt: Date.now()
+                });
+                showToast("Round Added");
+            }
+            persistData();
+            closeRoundModal();
+        }
+
+        function openTeamModal(teamId = null) {
+            const modal = document.getElementById('teamModal');
+            const preview = document.getElementById('modalTeamLogoPreview');
+            const fileInput = document.getElementById('modalTeamFileInput');
+            fileInput.value = "";
+            preview.dataset.uploadedUrl = "";
+
+            if (teamId) {
+                const team = appData.teams.find(t => t.id === teamId);
+                if (!team) return;
+                document.getElementById('teamModalTitle').innerText = "Edit Team";
+                document.getElementById('modalTeamId').value = team.id;
+                document.getElementById('modalTeamName').value = team.name;
+                preview.src = team.logo || "logo.png";
+                preview.dataset.uploadedUrl = team.logo || "logo.png";
+            } else {
+                document.getElementById('teamModalTitle').innerText = "Add Team";
+                document.getElementById('modalTeamId').value = "";
+                document.getElementById('modalTeamName').value = "";
+                preview.src = "logo.png";
+                preview.dataset.uploadedUrl = "logo.png";
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => document.getElementById('modalTeamName').focus(), 60);
+        }
+
+        function closeTeamModal() {
+            document.getElementById('teamModal').classList.add('hidden');
+        }
+
+        function saveTeamForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('modalTeamId').value;
+            const name = document.getElementById('modalTeamName').value.trim();
+            const logo = document.getElementById('modalTeamLogoPreview').dataset.uploadedUrl || "logo.png";
+
+            if (!name) return;
+
+            const isDuplicate = appData.teams.some(t => t.id !== id && t.name.trim().toLowerCase() === name.toLowerCase());
+            if (isDuplicate) {
+                showToast("عفواً! يوجد فريق آخر بنفس هذا الاسم.");
+                return;
+            }
+
+            if (id) {
+                const team = appData.teams.find(t => t.id === id);
+                if (team) {
+                    team.name = name;
+                    if (logo) team.logo = logo;
+                }
+                showToast("Team Updated");
+            } else {
+                appData.teams.push({
+                    id: 't-' + Date.now(),
+                    name: name,
+                    logo: logo,
+                    createdAt: Date.now()
+                });
+                showToast("Team Created");
+            }
+
+            persistData();
+            closeTeamModal();
+        }
+
+        function handleTeamLogoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 256;
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                        else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/png');
+                    const preview = document.getElementById('modalTeamLogoPreview');
+                    preview.src = dataUrl;
+                    preview.dataset.uploadedUrl = dataUrl;
+                    showToast("تم تحميل الشعار الشفاف بنجاح");
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleLogoFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 256;
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                        else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = canvas.toDataURL('image/png');
+                    appData.settings.eventLogo = dataUrl;
+                    document.getElementById('settingLogoPreview').src = dataUrl;
+                    persistData();
+                    showToast("تم تحديث لوجو الحدث");
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openCreateSessionModal(sessionId = null) {
+            if (appData.cycles.length === 0 || appData.rounds.length === 0 || appData.teams.length === 0) {
+                showToast("يجب إضافة دورة، جولة، وفريق أولاً!");
+                return;
+            }
+
+            const cycleSel = document.getElementById('modalSessionCycle');
+            cycleSel.innerHTML = appData.cycles.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            const teamSel = document.getElementById('modalSessionTeam');
+            teamSel.innerHTML = appData.teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+            if (sessionId) {
+                const session = appData.sessions.find(s => s.id === sessionId);
+                if (!session) return;
+                document.getElementById('sessionModalHeader').innerText = "Edit Vote Session";
+                document.getElementById('modalSessionEditId').value = session.id;
+                document.getElementById('modalSessionTitle').value = session.title;
+                cycleSel.value = session.cycleId;
+                updateModalRoundsDropdown();
+                document.getElementById('modalSessionRound').value = session.roundId;
+                teamSel.value = session.teamId;
+            } else {
+                document.getElementById('sessionModalHeader').innerText = "Setup Vote Session";
+                document.getElementById('modalSessionEditId').value = "";
+                document.getElementById('modalSessionTitle').value = "";
+                updateModalRoundsDropdown();
+            }
+
+            document.getElementById('createSessionModal').classList.remove('hidden');
+        }
+
+        function updateModalRoundsDropdown() {
+            const cycleId = document.getElementById('modalSessionCycle').value;
+            const roundSel = document.getElementById('modalSessionRound');
+            const rounds = appData.rounds.filter(r => r.cycleId === cycleId);
+            roundSel.innerHTML = rounds.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+        }
+
+        function closeCreateSessionModal() {
+            document.getElementById('createSessionModal').classList.add('hidden');
+        }
+
+        function saveSessionForm(e) {
+            e.preventDefault();
+            const editId = document.getElementById('modalSessionEditId').value;
+            const title = document.getElementById('modalSessionTitle').value.trim();
+            const cycleId = document.getElementById('modalSessionCycle').value;
+            const roundId = document.getElementById('modalSessionRound').value;
+            const teamId = document.getElementById('modalSessionTeam').value;
+
+            if (editId) {
+                const session = appData.sessions.find(s => s.id === editId);
+                if (session) {
+                    session.title = title;
+                    session.cycleId = cycleId;
+                    session.roundId = roundId;
+                    session.teamId = teamId;
+                }
+                showToast("Vote Session Updated");
+            } else {
+                const code = 'VOTE-' + Math.floor(100 + Math.random() * 900);
+                appData.sessions.push({
+                    id: 's-' + Date.now(),
+                    cycleId,
+                    roundId,
+                    teamId,
+                    title,
+                    voteCode: code,
+                    status: 'ACTIVE',
+                    createdAt: Date.now()
+                });
+                showToast("Vote Session Launched Live");
+            }
+
+            persistData();
+            closeCreateSessionModal();
+        }
+
+        /* ========================================================
+           REAL QR CODE & SHARE
+           ======================================================== */
+        function showQrForSession(sessionId) {
+            const session = appData.sessions.find(s => s.id === sessionId);
+            if (!session) return;
+            const team = appData.teams.find(t => t.id === session.teamId) || { name: "" };
+
+            document.getElementById('qrModalTeamName').innerText = team.name;
+            document.getElementById('qrModalSessionTitle').innerText = session.title;
+
+            const origin = window.location.origin + window.location.pathname;
+            currentQrUrl = `${origin}?vote=${encodeURIComponent(session.voteCode)}`;
+            document.getElementById('qrDirectLinkDisplay').innerText = currentQrUrl;
+
+            const qrBox = document.getElementById('realQrContainer');
+            qrBox.innerHTML = "";
+            new QRCode(qrBox, {
+                text: currentQrUrl,
+                width: 190,
+                height: 190,
+                colorDark: "#1e293b",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function closeQrModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+
+        function copyVoteDirectLink() {
+            if (!currentQrUrl) return;
+            const temp = document.createElement("input");
+            document.body.appendChild(temp);
+            temp.value = currentQrUrl;
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+            showToast("Copied Direct Link to Clipboard");
+        }
+
+        /* ========================================================
+           SCOPE FILTER FOR RANKING
+           ======================================================== */
+        function renderMultiScopeSelector() {
+            const container = document.getElementById('multiScopeContainer');
+            if (!container) return;
+
+            if (appData.cycles.length === 0) {
+                container.innerHTML = `<div class="text-[11px] text-slate-400 p-2 text-center">لا توجد دورات مسجلة بعد. أضف دورة من Hierarchy.</div>`;
+                return;
+            }
+
+            const currentScope = appData.settings.activeRankingScope || { all: true, cycles: [], rounds: [] };
+            const isAll = currentScope.all;
+
+            let html = `
+                <div class="flex items-center gap-2 px-2 py-1 bg-white dark:bg-darkcard rounded-lg border border-slate-200/80 dark:border-slate-800">
+                    <input type="checkbox" id="scope-all" onchange="toggleScopeAll(this.checked)" ${isAll ? 'checked' : ''} class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                    <label for="scope-all" class="text-xs font-black text-slate-800 dark:text-white cursor-pointer select-none">
+                        كل الـ Cycles والـ Rounds
+                    </label>
+                </div>
+            `;
+
+            appData.cycles.forEach(c => {
+                const cycleRounds = appData.rounds.filter(r => r.cycleId === c.id);
+                const isCycleChecked = isAll || (currentScope.cycles && currentScope.cycles.includes(c.id));
+
+                html += `
+                    <div class="px-2 py-1.5 rounded-lg bg-white dark:bg-darkcard border border-slate-200/80 dark:border-slate-800">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="scope-cycle-${c.id}" value="${c.id}" onchange="toggleScopeCycle('${c.id}', this.checked)" ${isCycleChecked ? 'checked' : ''} class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <label for="scope-cycle-${c.id}" class="text-xs font-black text-blue-600 dark:text-blue-400 cursor-pointer select-none">
+                                    ${c.name}
+                                </label>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400">${cycleRounds.length} Rounds</span>
+                        </div>
+                        ${cycleRounds.length > 0 ? `
+                            <div class="pr-5 pt-1 mt-1 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-x-3 gap-y-1">
+                                ${cycleRounds.map(r => {
+                                    const isRoundChecked = isAll || isCycleChecked || (currentScope.rounds && currentScope.rounds.includes(r.id));
+                                    return `
+                                        <div class="flex items-center gap-1.5">
+                                            <input type="checkbox" id="scope-round-${r.id}" data-cycle="${c.id}" value="${r.id}" onchange="toggleScopeRound('${r.id}', this.checked)" ${isRoundChecked ? 'checked' : ''} class="w-3 h-3 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                            <label for="scope-round-${r.id}" class="text-[11px] font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                                                ${r.name}
+                                            </label>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleScopeAll(checked) {
+            if (checked) {
+                appData.settings.activeRankingScope = { all: true, cycles: [], rounds: [] };
+            } else {
+                appData.settings.activeRankingScope = { all: false, cycles: [], rounds: [] };
+            }
+            saveScopeAndRerender();
+        }
+
+        function selectAllScope(selectAll) {
+            toggleScopeAll(selectAll);
+        }
+
+        function toggleScopeCycle(cycleId, checked) {
+            let scope = appData.settings.activeRankingScope || { all: false, cycles: [], rounds: [] };
+            scope.all = false;
+            if (!scope.cycles) scope.cycles = [];
+            if (!scope.rounds) scope.rounds = [];
+
+            if (checked) {
+                if (!scope.cycles.includes(cycleId)) scope.cycles.push(cycleId);
+                const cycleRounds = appData.rounds.filter(r => r.cycleId === cycleId).map(r => r.id);
+                cycleRounds.forEach(rid => {
+                    if (!scope.rounds.includes(rid)) scope.rounds.push(rid);
+                });
+            } else {
+                scope.cycles = scope.cycles.filter(id => id !== cycleId);
+                const cycleRounds = appData.rounds.filter(r => r.cycleId === cycleId).map(r => r.id);
+                scope.rounds = scope.rounds.filter(id => !cycleRounds.includes(id));
+            }
+            saveScopeAndRerender();
+        }
+
+        function toggleScopeRound(roundId, checked) {
+            let scope = appData.settings.activeRankingScope || { all: false, cycles: [], rounds: [] };
+            scope.all = false;
+            if (!scope.rounds) scope.rounds = [];
+            if (!scope.cycles) scope.cycles = [];
+
+            const round = appData.rounds.find(r => r.id === roundId);
+            if (checked) {
+                if (!scope.rounds.includes(roundId)) scope.rounds.push(roundId);
+            } else {
+                scope.rounds = scope.rounds.filter(id => id !== roundId);
+                if (round) {
+                    scope.cycles = scope.cycles.filter(cid => cid !== round.cycleId);
+                }
+            }
+            saveScopeAndRerender();
+        }
+
+        function saveScopeAndRerender() {
+            persistData();
+            renderMultiScopeSelector();
+            renderAdminDynamicRanking();
+            renderPublicRanking();
+        }
+
+        function renderAdminDynamicRanking() {
+            const grid = document.getElementById('adminRankingGrid');
+            if (!grid) return;
+            
+            const scope = appData.settings.activeRankingScope || { all: true, cycles: [], rounds: [] };
+
+            let rankedTeams = appData.teams.map(team => {
+                const stats = calculateOverallTeamPercent(team.id, scope);
+                return { ...team, ...stats };
+            });
+
+            rankedTeams.sort((a, b) => b.overallPercent - a.overallPercent);
+
+            if (rankedTeams.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-6 bg-white dark:bg-darkcard rounded-2xl text-center text-xs font-bold text-slate-400">No teams registered.</div>`;
+                return;
+            }
+
+            const rankBadges = ['1st Place 🥇', '2nd Place 🥈', '3rd Place 🥉'];
+            const cardStyles = ['gold-card', 'silver-card', 'bronze-card'];
+
+            grid.innerHTML = rankedTeams.map((team, index) => {
+                const badge = rankBadges[index] || `Rank ${index + 1}`;
+                const cardStyle = cardStyles[index] || 'bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder';
+
+                return `
+                    <div class="${cardStyle} p-3.5 rounded-2xl shadow-sm flex flex-col items-center text-center relative overflow-hidden transition">
+                        <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-black ${index === 0 ? 'bg-amber-500 text-white' : index === 1 ? 'bg-slate-500 text-white' : index === 2 ? 'bg-amber-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}">
+                            ${badge}
+                        </div>
+
+                        <div class="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-transparent p-1.5 flex items-center justify-center border border-slate-200/80 dark:border-slate-700/80 mt-1 mb-1.5">
+                            <img src="${team.logo || 'logo.png'}" alt="${team.name}" class="w-full h-full object-contain rounded-lg" onerror="handleImageFallback(this)">
+                        </div>
+
+                        <h3 class="text-xs md:text-sm font-black text-slate-900 dark:text-white leading-tight mb-1.5">${team.name}</h3>
+
+                        <div class="flex items-center gap-2">
+                            <div class="bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-lg shadow-sm text-center">
+                                <span class="text-[8px] font-black text-slate-400 block">Overall Score</span>
+                                <span class="text-xs md:text-sm font-black text-emerald-600 dark:text-emerald-400 font-mono">${team.overallPercent}%</span>
+                            </div>
+                            <div class="bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-lg shadow-sm text-center">
+                                <span class="text-[8px] font-black text-slate-400 block">Votes</span>
+                                <span class="text-xs md:text-sm font-black text-blue-600 dark:text-blue-400 font-mono">${team.totalVotes}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ========================================================
+           ADMIN SESSIONS & RESULTS
+           ======================================================== */
+        function renderAdminSessions() {
+            const list = document.getElementById('adminSessionsList');
+            if (appData.sessions.length === 0) {
+                list.innerHTML = `<div class="p-8 text-center text-xs font-bold text-slate-400 bg-white dark:bg-darkcard rounded-2xl">No vote sessions created yet.</div>`;
+                return;
+            }
+
+            list.innerHTML = appData.sessions.slice().reverse().map(session => {
+                const team = appData.teams.find(t => t.id === session.teamId) || { name: "فريق غير معروف", logo: "logo.png" };
+                const cycle = appData.cycles.find(c => c.id === session.cycleId)?.name || "";
+                const round = appData.rounds.find(r => r.id === session.roundId)?.name || "";
+                const stats = calculateSessionPercent(session.id);
+                const isLive = session.status === 'ACTIVE';
+
+                return `
+                    <div class="bg-white dark:bg-darkcard p-4 rounded-2xl border ${isLive ? 'border-blue-500' : 'border-slate-200 dark:border-slate-800'} shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${team.logo || 'logo.png'}" class="w-12 h-12 rounded-xl object-contain bg-slate-50 dark:bg-slate-900 border p-1" onerror="handleImageFallback(this)">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs md:text-sm font-black text-slate-900 dark:text-white">${team.name}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${isLive ? 'bg-emerald-500 text-white animate-pulse' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}">
+                                        ${isLive ? 'LIVE' : 'CLOSED'}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">${session.title} • <strong class="text-blue-600 dark:text-blue-400">${cycle} - ${round}</strong></p>
+                                <span class="font-mono text-[11px] font-bold text-slate-400">Code: ${session.voteCode} • Votes: ${stats.count} • Score: ${stats.percent}%</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 w-full md:w-auto justify-end">
+                            <button onclick="toggleSessionStatus('${session.id}')" class="px-3 py-1.5 rounded-xl text-xs font-black transition active:scale-95 ${isLive ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'}">
+                                ${isLive ? 'End' : 'Start'}
+                            </button>
+                            <button onclick="showQrForSession('${session.id}')" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300" title="QR Code & Direct Link">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            </button>
+                            <button onclick="openCreateSessionModal('${session.id}')" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-400" title="Edit Session">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            </button>
+                            <button onclick="deleteSession('${session.id}')" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/30 text-rose-600" title="Delete Session">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAdminResults(filterQuery = "") {
+            const grid = document.getElementById('adminTeamCardsGrid');
+            const q = filterQuery.trim().toLowerCase();
+
+            if (appData.teams.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-8 text-center text-xs font-bold text-slate-400 bg-white dark:bg-darkcard rounded-2xl">No teams registered.</div>`;
+                return;
+            }
+
+            const filteredTeams = appData.teams.filter(t => !q || t.name.toLowerCase().includes(q));
+
+            grid.innerHTML = filteredTeams.map(team => {
+                const teamSessions = appData.sessions.filter(s => s.teamId === team.id);
+                const overallStats = calculateOverallTeamPercent(team.id);
+
+                return `
+                    <div class="bg-white dark:bg-darkcard p-4 md:p-5 rounded-3xl border border-slate-200 dark:border-darkborder shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    <img src="${team.logo || 'logo.png'}" class="w-10 h-10 rounded-xl object-contain bg-slate-50 dark:bg-slate-900 border p-1 shrink-0" onerror="handleImageFallback(this)">
+                                    <h4 class="font-black text-sm md:text-base text-slate-800 dark:text-white truncate">${team.name}</h4>
+                                </div>
+                                <div class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-xl text-center shrink-0">
+                                    <span class="text-[9px] font-bold text-slate-400 block">Overall</span>
+                                    <span class="font-black text-xs md:text-sm text-emerald-600 dark:text-emerald-400 font-mono">${overallStats.overallPercent}%</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                ${teamSessions.length === 0 ? `<p class="text-xs text-slate-400 text-center py-2">No sessions assigned yet.</p>` : ''}
+                                ${teamSessions.map(session => {
+                                    const stats = calculateSessionPercent(session.id);
+                                    const cycle = appData.cycles.find(c => c.id === session.cycleId)?.name || "";
+                                    const round = appData.rounds.find(r => r.id === session.roundId)?.name || "";
+
+                                    return `
+                                        <div onclick="openDrillDownModal('${session.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-900/70 hover:bg-blue-50 dark:hover:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer transition flex items-center justify-between text-xs">
+                                            <div class="overflow-hidden">
+                                                <span class="font-black text-slate-800 dark:text-white block truncate">${session.title}</span>
+                                                <span class="text-[10px] text-slate-400">${cycle} - ${round}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 shrink-0">
+                                                <span class="font-mono font-bold text-slate-500">${stats.count} votes</span>
+                                                <span class="px-2 py-0.5 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-mono font-black">${stats.percent}%</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ========================================================
+           DRILL DOWN VOTES LOG
+           ======================================================== */
+        function renderDrillDownVotesList(sessionId) {
+            const list = document.getElementById('drillDownVotesList');
+            const votes = appData.votes.filter(v => v.sessionId === sessionId).reverse();
+
+            if (votes.length === 0) {
+                list.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">No votes recorded yet for this session.</div>`;
+                return;
+            }
+
+            list.innerHTML = votes.map((v, i) => `
+                <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[10px]">#${votes.length - i}</span>
+                        <div>
+                            <span class="font-mono font-bold text-slate-700 dark:text-slate-300 block">Rating: <strong class="text-blue-600 dark:text-blue-400 font-black">${v.rating}/10</strong></span>
+                            <span class="text-[9px] text-slate-400 font-mono">${new Date(v.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} • IP: ${v.voterIp || 'Hidden'}</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteSingleVote('${v.id}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition" title="Delete Vote">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openDrillDownModal(sessionId) {
+            currentDrillSessionId = sessionId;
+            const session = appData.sessions.find(s => s.id === sessionId);
+            if (!session) return;
+
+            const team = appData.teams.find(t => t.id === session.teamId) || { name: "-" };
+            const stats = calculateSessionPercent(sessionId);
+
+            document.getElementById('drillDownTitle').innerText = `${team.name} - ${session.title}`;
+            document.getElementById('drillDownStats').innerText = `Count: ${stats.count} • Average: ${stats.average}/10 • Score: ${stats.percent}%`;
+
+            renderDrillDownVotesList(sessionId);
+            document.getElementById('drillDownModal').classList.remove('hidden');
+        }
+
+        function closeDrillDownModal() {
+            document.getElementById('drillDownModal').classList.add('hidden');
+            currentDrillSessionId = null;
+        }
+
+        function switchPublicTab(tab) {
+            activePublicTab = tab;
+            const viewVotes = document.getElementById('viewPublicVotes');
+            const viewRanking = document.getElementById('viewPublicRanking');
+            const btnVotes = document.getElementById('tabBtnVotes');
+            const btnRanking = document.getElementById('tabBtnRanking');
+
+            if (tab === 'voting') {
+                viewVotes.classList.remove('hidden-app');
+                viewRanking.classList.add('hidden-app');
+                btnVotes.className = "flex-1 max-w-[190px] py-2 px-6 rounded-2xl font-black text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-white dark:bg-darkcard text-blue-600 dark:text-blue-400 border-2 border-blue-500 shadow-md scale-105";
+                btnRanking.className = "flex-1 max-w-[190px] py-2 px-6 rounded-2xl font-black text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-blue-400";
+            } else {
+                viewVotes.classList.add('hidden-app');
+                viewRanking.classList.remove('hidden-app');
+                btnRanking.className = "flex-1 max-w-[190px] py-2 px-6 rounded-2xl font-black text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-white dark:bg-darkcard text-blue-600 dark:text-blue-400 border-2 border-blue-500 shadow-md scale-105";
+                btnVotes.className = "flex-1 max-w-[190px] py-2 px-6 rounded-2xl font-black text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-blue-400";
+                renderPublicRanking();
+            }
+        }
+
+        function renderVoterActiveSession() {
+            const container = document.getElementById('activeSessionVoterContainer');
+            if (!container) return;
+
+            let sessionsToDisplay = appData.sessions.filter(s => s.status === 'ACTIVE');
+
+            if (voterCodeFilter) {
+                const cleanCode = voterCodeFilter.replace(/^VOTE-?/i, '').trim();
+                sessionsToDisplay = appData.sessions.filter(s => {
+                    const sessionCodeClean = s.voteCode.toUpperCase().replace(/^VOTE-?/i, '').trim();
+                    return s.voteCode.toUpperCase().includes(voterCodeFilter) || 
+                           sessionCodeClean.includes(cleanCode) ||
+                           s.title.toUpperCase().includes(voterCodeFilter);
+                });
+            }
+
+            if (sessionsToDisplay.length === 0) {
+                if (voterCodeFilter) {
+                    container.innerHTML = `
+                        <div class="bg-white dark:bg-darkcard p-8 rounded-3xl border border-slate-200 dark:border-darkborder text-center shadow-sm">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-900/30 text-amber-500 mx-auto flex items-center justify-center mb-3 text-2xl">
+                                🔍
+                            </div>
+                            <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white mb-1">لا يوجد Vote يطابق الكود: "${voterCodeFilter}"</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">تأكد من كتابة الكود بشكل صحيح أو أن الجلسة لم تُغلق بعد.</p>
+                            <button onclick="clearVoteCodeFilter()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition">
+                                مسح البحث وعرض كل الـ Votes المتاحة
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="bg-white dark:bg-darkcard p-8 rounded-3xl border border-slate-200 dark:border-darkborder text-center shadow-sm">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-500 mx-auto flex items-center justify-center mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white mb-1">لا يوجد Vote مفتوح حالياً</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">انتظر حتى يفتح المسؤول جلسة التصويت للفريق القادم أو أدخل كود الـ Vote بالأعلى.</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            container.innerHTML = sessionsToDisplay.map(session => {
+                const team = appData.teams.find(t => t.id === session.teamId) || { name: "فريق", logo: "logo.png" };
+                const cycle = appData.cycles.find(c => c.id === session.cycleId)?.name || "";
+                const round = appData.rounds.find(r => r.id === session.roundId)?.name || "";
+                const userVote = getUserVoteForSession(session.id);
+                const hasVoted = Boolean(userVote);
+                const isLive = session.status === 'ACTIVE';
+
+                return `
+                    <div id="voter-card-${session.id}" class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl ${isLive ? 'border-2 border-blue-500' : 'border border-slate-300 dark:border-slate-700 opacity-80'} shadow-xl relative overflow-hidden transition-all duration-300">
+                        <div class="absolute top-3 left-3 px-3 py-1 rounded-full ${isLive ? 'bg-emerald-500 text-white' : 'bg-slate-400 text-white'} text-[10px] md:text-xs font-black tracking-wider flex items-center gap-1.5 shadow-sm">
+                            ${isLive ? '<span class="w-2 h-2 rounded-full bg-white animate-ping"></span><span>LIVE NOW</span>' : '<span>CLOSED</span>'}
+                        </div>
+
+                        <div class="flex flex-col items-center text-center mt-2 mb-4">
+                            <div class="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-transparent p-2 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm mb-3">
+                                <img src="${team.logo || 'logo.png'}" alt="${team.name}" class="w-full h-full object-contain rounded-xl" onerror="handleImageFallback(this)">
+                            </div>
+                            <h2 class="text-base md:text-xl font-black text-slate-900 dark:text-white leading-tight">${team.name}</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-bold">${session.title} • <span class="text-blue-600 dark:text-blue-400">${cycle} - ${round}</span></p>
+                            <span class="inline-block bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono text-xs font-black px-2.5 py-1 rounded-lg mt-1 border border-blue-200 dark:border-blue-800">
+                                Code: ${session.voteCode}
+                            </span>
+                        </div>
+
+                        ${!isLive ? `
+                            <div class="bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-3 rounded-2xl text-center">
+                                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">جلسة التصويت هذه مغلقة حالياً.</span>
+                            </div>
+                        ` : hasVoted ? `
+                            <div class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 p-4 rounded-2xl text-center">
+                                <span class="text-xs font-black text-emerald-700 dark:text-emerald-300 block mb-1">تم تسجيل صوتك بنجاح لهذا الـ Vote!</span>
+                                <div class="inline-flex items-center gap-1 font-mono text-base font-black text-emerald-600 dark:text-emerald-400">
+                                    <span>تقييمك:</span>
+                                    <span>${userVote.rating} / 10</span>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="space-y-2">
+                                <label class="block text-center text-xs font-black text-slate-700 dark:text-slate-300">قيّم أداء الفريق (من 5 إلى 10 فقط):</label>
+                                <div class="grid grid-cols-6 gap-2">
+                                    ${[5, 6, 7, 8, 9, 10].map(num => `
+                                        <button onclick="castVote('${session.id}', ${num})" class="py-3 rounded-2xl font-black text-sm md:text-base transition-all bg-slate-50 hover:bg-blue-600 hover:text-white dark:bg-slate-900 dark:hover:bg-blue-600 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-90">
+                                            ${num}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPublicRanking() {
+            const grid = document.getElementById('voterRankingCardsGrid');
+            if (!grid) return;
+
+            const scope = appData.settings.activeRankingScope || { all: true, cycles: [], rounds: [] };
+
+            let rankedTeams = appData.teams.map(team => {
+                const stats = calculateOverallTeamPercent(team.id, scope);
+                return { ...team, ...stats };
+            });
+
+            rankedTeams.sort((a, b) => b.overallPercent - a.overallPercent);
+
+            if (rankedTeams.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-8 text-center text-xs font-bold text-slate-400 bg-white dark:bg-darkcard rounded-2xl">لا توجد نتائج مسجلة حتى الآن.</div>`;
+                return;
+            }
+
+            const rankBadges = ['1st Place 🥇', '2nd Place 🥈', '3rd Place 🥉'];
+            const cardStyles = ['gold-card', 'silver-card', 'bronze-card'];
+
+            grid.innerHTML = rankedTeams.map((team, index) => {
+                const badge = rankBadges[index] || `Rank ${index + 1}`;
+                const cardStyle = cardStyles[index] || 'bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder';
+
+                return `
+                    <div class="${cardStyle} p-4 md:p-5 rounded-3xl shadow-sm flex flex-col items-center text-center relative overflow-hidden transition">
+                        <div class="absolute top-3 right-3 px-2.5 py-0.5 rounded-lg text-xs font-black ${index === 0 ? 'bg-amber-500 text-white' : index === 1 ? 'bg-slate-500 text-white' : index === 2 ? 'bg-amber-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}">
+                            ${badge}
+                        </div>
+
+                        <div class="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-transparent p-2 flex items-center justify-center border border-slate-200/80 dark:border-slate-700/80 mt-2 mb-2">
+                            <img src="${team.logo || 'logo.png'}" alt="${team.name}" class="w-full h-full object-contain rounded-xl" onerror="handleImageFallback(this)">
+                        </div>
+
+                        <h3 class="text-sm md:text-base font-black text-slate-900 dark:text-white leading-tight mb-2">${team.name}</h3>
+
+                        <div class="bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-xl shadow-sm text-center">
+                            <span class="text-[9px] font-black text-slate-400 block">Overall Score</span>
+                            <span class="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">${team.overallPercent}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCyclesManager() {
+            const container = document.getElementById('cyclesListContainer');
+            if (appData.cycles.length === 0) {
+                container.innerHTML = `<div class="p-3 text-center text-xs text-slate-400">No cycles yet.</div>`;
+                return;
+            }
+            container.innerHTML = appData.cycles.map(cycle => `
+                <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <span class="font-black text-slate-800 dark:text-slate-100 truncate">${cycle.name}</span>
+                    <div class="flex items-center gap-1">
+                        <button onclick="openCycleModal('${cycle.id}')" class="text-blue-500 hover:text-blue-700 p-1" title="Edit Cycle">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                        <button onclick="deleteCycle('${cycle.id}')" class="text-rose-500 hover:text-rose-700 p-1 font-bold" title="Delete Cycle">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRoundsManager() {
+            const selectCycle = document.getElementById('roundsFilterCycle');
+            if (appData.cycles.length === 0) {
+                selectCycle.innerHTML = '<option value="">No Cycles Available</option>';
+            } else {
+                const cur = selectCycle.value || appData.cycles[0].id;
+                selectCycle.innerHTML = appData.cycles.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                if (cur && appData.cycles.some(c => c.id === cur)) selectCycle.value = cur;
+            }
+
+            const cycleId = selectCycle.value;
+            const container = document.getElementById('roundsListContainer');
+
+            const rounds = appData.rounds.filter(r => r.cycleId === cycleId);
+            if (rounds.length === 0) {
+                container.innerHTML = `<div class="p-3 text-center text-xs text-slate-400">No rounds in this cycle.</div>`;
+                return;
+            }
+            container.innerHTML = rounds.map(round => `
+                <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <span class="font-black text-slate-800 dark:text-slate-100 truncate">${round.name}</span>
+                    <div class="flex items-center gap-1">
+                        <button onclick="openRoundModal('${round.id}')" class="text-blue-500 hover:text-blue-700 p-1" title="Edit Round">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                        <button onclick="deleteRound('${round.id}')" class="text-rose-500 hover:text-rose-700 p-1 font-bold" title="Delete Round">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTeamsManager() {
+            const container = document.getElementById('teamsListContainer');
+            if (appData.teams.length === 0) {
+                container.innerHTML = `<div class="p-3 text-center text-xs text-slate-400">No teams created.</div>`;
+                return;
+            }
+            container.innerHTML = appData.teams.map(team => `
+                <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <img src="${team.logo || 'logo.png'}" alt="logo" class="w-6 h-6 rounded-md object-contain bg-white shrink-0" onerror="handleImageFallback(this)">
+                        <span class="font-black text-slate-800 dark:text-slate-100 truncate">${team.name}</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="openTeamModal('${team.id}')" class="text-blue-500 hover:text-blue-700 p-1" title="Edit Team">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                        <button onclick="deleteTeam('${team.id}')" class="text-rose-500 hover:text-rose-700 p-1 font-bold" title="Delete Team">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateUI() {
+            document.querySelectorAll('.meeting-name-display').forEach(el => el.innerText = appData.settings.eventName);
+            document.querySelectorAll('.logo-display').forEach(el => {
+                if (el.src !== appData.settings.eventLogo) el.src = appData.settings.eventLogo;
+            });
+            document.title = appData.settings.eventName;
+
+            renderVoterActiveSession();
+            renderPublicRanking();
+
+            if (isAdminLoggedIn) {
+                renderAdminSessions();
+                renderAdminResults();
+                renderMultiScopeSelector();
+                renderAdminDynamicRanking();
+                renderCyclesManager();
+                renderRoundsManager();
+                renderTeamsManager();
+            }
+        }
+
+        /* ========================================================
+           ADMIN AUTH & APP SETTINGS
+           ======================================================== */
+        function toggleAdminView() {
+            if (!isAdminLoggedIn) {
+                document.getElementById('adminLoginModal').classList.remove('hidden');
+                document.getElementById('adminPasswordInput').value = "";
+                document.getElementById('adminLoginError').classList.add('hidden');
+            } else {
+                isAdminLoggedIn = false;
+                document.getElementById('adminInterface').classList.add('hidden-app');
+                document.getElementById('voterInterface').classList.remove('hidden-app');
+                document.getElementById('adminToggleText').innerText = "Admin";
+                showToast("Logged out of Admin Portal");
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPasswordInput').value;
+            if (pass === appData.settings.adminPasswordHash) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLoginModal').classList.add('hidden');
+                document.getElementById('voterInterface').classList.add('hidden-app');
+                document.getElementById('adminInterface').classList.remove('hidden-app');
+                document.getElementById('adminToggleText').innerText = "Voter";
+                
+                document.getElementById('settingEventName').value = appData.settings.eventName;
+                document.getElementById('settingLogoPreview').src = appData.settings.eventLogo || "logo.png";
+
+                updateUI();
+                showToast("Welcome Admin");
+            } else {
+                document.getElementById('adminLoginError').classList.remove('hidden');
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function returnHome() {
+            if (isAdminLoggedIn) {
+                isAdminLoggedIn = false;
+                document.getElementById('adminInterface').classList.add('hidden-app');
+                document.getElementById('voterInterface').classList.remove('hidden-app');
+                document.getElementById('adminToggleText').innerText = "Admin";
+            }
+            switchPublicTab('voting');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchAdminTab(tabName) {
+            activeAdminTab = tabName;
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.className = "admin-tab-btn px-3.5 py-2 rounded-xl text-xs md:text-sm font-black whitespace-nowrap bg-white dark:bg-darkcard text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700";
+            });
+            document.querySelectorAll('.admin-subview').forEach(v => v.classList.add('hidden-app'));
+
+            const targetBtn = {
+                'sessions': 'tabSessions',
+                'results': 'tabResults',
+                'ranking': 'tabRanking',
+                'hierarchy': 'tabHierarchy',
+                'settings': 'tabSettings'
+            }[tabName];
+
+            const targetView = {
+                'sessions': 'adminTabSessions',
+                'results': 'adminTabResults',
+                'ranking': 'adminTabRanking',
+                'hierarchy': 'adminTabHierarchy',
+                'settings': 'adminTabSettings'
+            }[tabName];
+
+            if (document.getElementById(targetBtn)) {
+                document.getElementById(targetBtn).className = "admin-tab-btn px-3.5 py-2 rounded-xl text-xs md:text-sm font-black whitespace-nowrap bg-blue-600 text-white shadow-md";
+            }
+            if (document.getElementById(targetView)) {
+                document.getElementById(targetView).classList.remove('hidden-app');
+            }
+        }
+
+        function saveAppSettings() {
+            const name = document.getElementById('settingEventName').value.trim();
+            const newPass = document.getElementById('settingAdminPassword').value.trim();
+
+            if (name) appData.settings.eventName = name;
+            if (newPass) appData.settings.adminPasswordHash = newPass;
+
+            persistData();
+            showToast("Settings Updated");
+        }
+
+        /* ========================================================
+           INSTANT REAL-TIME VOTE CODE SEARCH
+           ======================================================== */
+        function handleVoteCodeLiveFilter(val) {
+            voterCodeFilter = (val || "").trim().toUpperCase();
+            const clearBtn = document.getElementById('clearCodeBtn');
+            if (clearBtn) {
+                if (voterCodeFilter) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+            renderVoterActiveSession();
+        }
+
+        function clearVoteCodeFilter() {
+            const input = document.getElementById('joinCodeInput');
+            if (input) input.value = "";
+            voterCodeFilter = "";
+            const clearBtn = document.getElementById('clearCodeBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
+            renderVoterActiveSession();
+        }
+
+        function joinSessionByCode() {
+            const raw = document.getElementById('joinCodeInput')?.value.trim() || "";
+            if (!raw) {
+                showToast("يرجى كتابة كود الـ Vote أولاً!");
+                return;
+            }
+            
+            voterCodeFilter = raw.toUpperCase();
+            const cleanCode = voterCodeFilter.replace(/^VOTE-?/i, '').trim();
+
+            const matched = appData.sessions.find(s => {
+                const sClean = s.voteCode.toUpperCase().replace(/^VOTE-?/i, '').trim();
+                return s.voteCode.toUpperCase() === voterCodeFilter || sClean === cleanCode;
+            });
+
+            switchPublicTab('voting');
+            renderVoterActiveSession();
+
+            if (matched) {
+                showToast(`تم العثور على: ${matched.voteCode}`);
+                setTimeout(() => {
+                    const el = document.getElementById(`voter-card-${matched.id}`);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.classList.add('ring-4', 'ring-blue-500');
+                        setTimeout(() => el.classList.remove('ring-4', 'ring-blue-500'), 2000);
+                    }
+                }, 150);
+            } else {
+                showToast(`لم يتم العثور على جلسة بالكود: ${raw}`);
+            }
+        }
+
+        /* ========================================================
+           THEME & HELPERS
+           ======================================================== */
+        function initTheme() {
+            const btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            if (document.documentElement.classList.contains('dark')) {
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+            } else {
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+            }
+            initTheme();
+        }
+
+        function handleImageFallback(img) {
+            img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%233b82f6"/><stop offset="100%" stop-color="%231d4ed8"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="url(%23g)"/><path d="M50 20v60M30 40h40" stroke="%23ffffff" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="18" fill="none" stroke="%23ffffff" stroke-width="3" opacity="0.6"/></svg>';
+        }
+
+        function refreshApp() {
+            showToast("جاري تحديث الصفحة...");
+            setTimeout(() => {
+                window.location.reload();
+            }, 300);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => toast.classList.add('opacity-0'), 2400);
+        }
+
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('vote') || params.get('code');
+            if (code) {
+                const input = document.getElementById('joinCodeInput');
+                if (input) input.value = code;
+                handleVoteCodeLiveFilter(code);
+                switchPublicTab('voting');
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initTheme();
+            checkUrlParams();
+        });
+    </script>
+</body>
+</html>
