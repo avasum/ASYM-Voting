@@ -122,7 +122,7 @@
     <!-- Main Container -->
     <main class="flex-1 overflow-hidden relative pt-[54px] md:pt-[70px] flex flex-col max-w-5xl mx-auto w-full px-2 sm:px-4 md:px-5">
         
-        <!-- SECTION 1: VOTER INTERFACE -->
+        <!-- SECTION 1: VOTER INTERFACE (Available for All) -->
         <div id="voterInterface" class="flex-1 flex flex-col overflow-hidden pb-2 pt-1">
             
             <div class="flex items-center justify-center gap-2 my-1.5 shrink-0 px-1">
@@ -315,7 +315,7 @@
 
                     <div>
                         <label class="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">Admin Password:</label>
-                        <input type="password" id="settingAdminPassword" placeholder="New Password (optional)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="password" id="settingAdminPassword" placeholder="تغيير كلمة السر (اتركها فارغة إن لم ترغب في التغيير)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div class="flex items-center gap-2 pt-1.5">
@@ -458,7 +458,7 @@
 
     <!-- MODAL: Round Add/Edit -->
     <div id="roundModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-[227] hidden">
-        <div class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-darkborder mx-4">
+        <div class="bg-white dark:bg-darkcard p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-700 mx-4">
             <h3 id="roundModalTitle" class="text-base font-black text-slate-800 dark:text-white mb-3">Add Round</h3>
             <form onsubmit="saveRoundForm(event)" class="space-y-3.5">
                 <input type="hidden" id="modalRoundId" value="">
@@ -524,26 +524,6 @@
 
     <!-- Application Script -->
     <script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Firebase Configuration & Initialization
         const firebaseConfig = {
             apiKey: "AIzaSyCg3HSBz1sQYVC7fgeLw48PZjUBVzyj8sc",
@@ -557,29 +537,20 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const dbRef = db.ref('voting_system_data');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        const rootRef = db.ref('voting_system_data');
+        const votesRef = db.ref('voting_system_data/votes');
+        
+        // مراجع منفصلة لتجنب إرسال شجرة البيانات كاملة
+        const structureRefs = {
+            cycles: db.ref('voting_system_data/cycles'),
+            rounds: db.ref('voting_system_data/rounds'),
+            teams: db.ref('voting_system_data/teams'),
+            sessions: db.ref('voting_system_data/sessions'),
+            settings: db.ref('voting_system_data/settings')
+        };
 
         /* ========================================================
-           STATE & REALTIME SYNC ADAPTER
+           STATE & REALTIME HIGH-CONCURRENCY ADAPTER
            ======================================================== */
         const CLEAN_EMPTY_DATA = {
             cycles: [],
@@ -603,28 +574,166 @@
         let currentQrUrl = "";
         let pendingDeleteAction = null;
         let voterCodeFilter = "";
+        let isCastingVote = false;
 
-        // دالة إرسال التحديثات السحابية لقاعدة البيانات
-        function persistData() {
-            dbRef.set(appData);
+        /* ========================================================
+           HYBRID VOTER IDENTIFICATION (iOS COLLISION FIX)
+           ======================================================== */
+        
+        // 1. معرّف فريد ثابت لكل جلسة متصفح (خط الدفاع الأول والأساسي)
+        // يضمن استقلال كل مستخدم يحمل هاتف آيفون مشابه دون حدوث أي تضارب
+        function getVoterIdentifier() {
+            let id = null;
+            try {
+                id = localStorage.getItem('voter_unique_session_id');
+                if (!id) {
+                    id = 'VTR-' + Math.random().toString(36).substring(2, 9) + '-' + Date.now().toString(36);
+                    localStorage.setItem('voter_unique_session_id', id);
+                }
+            } catch (e) {
+                // بديل آمن إن كان التخزين المحلي مقيداً بشكل استثنائي
+                id = 'VTR-TMP-' + Math.random().toString(36).substring(2, 9) + '-' + Date.now().toString(36);
+            }
+            return id;
         }
 
-        // الاستماع للتحديثات اللحظية من جميع الأجهزة (Realtime Listener)
-        dbRef.on('value', (snapshot) => {
-            const val = snapshot.val();
-            if (val) {
-                appData = val;
-                if (!appData.cycles) appData.cycles = [];
-                if (!appData.rounds) appData.rounds = [];
-                if (!appData.teams) appData.teams = [];
-                if (!appData.sessions) appData.sessions = [];
-                if (!appData.votes) appData.votes = [];
-                if (!appData.settings) appData.settings = CLEAN_EMPTY_DATA.settings;
-                if (!appData.settings.activeRankingScope) appData.settings.activeRankingScope = { all: true, cycles: [], rounds: [] };
-            } else {
-                persistData();
+        // 2. بصمة العتاد والـ Canvas كطبقة مساعدة إضافية
+        function generateHardwareFingerprint() {
+            try {
+                let canvasHash = 0;
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 50;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.textBaseline = "top";
+                    ctx.font = "14px 'Cairo', Arial";
+                    ctx.fillStyle = "#f60";
+                    ctx.fillRect(125, 1, 62, 20);
+                    ctx.fillStyle = "#069";
+                    ctx.fillText("Vote_Security_2026", 2, 15);
+                    ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+                    ctx.fillText("Vote_Security_2026", 4, 17);
+                    const str = canvas.toDataURL();
+                    for (let i = 0; i < str.length; i++) {
+                        canvasHash = ((canvasHash << 5) - canvasHash) + str.charCodeAt(i);
+                        canvasHash |= 0;
+                    }
+                }
+
+                // جمع سمات العتاد الثابتة
+                const rawComponents = [
+                    canvasHash,
+                    screen.width + "x" + screen.height + "x" + screen.colorDepth,
+                    navigator.hardwareConcurrency || "NA",
+                    navigator.deviceMemory || "NA",
+                    new Date().getTimezoneOffset(),
+                    navigator.language || navigator.userLanguage || "ar",
+                    (navigator.userAgent || "").replace(/\s+/g, '')
+                ].join('###');
+
+                // تجزئة سريعة إلى مفتاح آمن وقصير
+                let h1 = 0xdeadbeef, h2 = 0x41c64e6d;
+                for (let i = 0; i < rawComponents.length; i++) {
+                    const ch = rawComponents.charCodeAt(i);
+                    h1 = Math.imul(h1 ^ ch, 2654435761);
+                    h2 = Math.imul(h2 ^ ch, 1597334677);
+                }
+                h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+                h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+                const hashStr = (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+                
+                return 'DFP-' + hashStr;
+            } catch (e) {
+                return 'DFP-BASIC';
             }
-            updateUI();
+        }
+
+        // دمج المعرف الفريد الخاص بالمتصفح مع بصمة العتاد لإنتاج بصمة متفردة بنسبة 100%
+        const currentVoterId = getVoterIdentifier();
+        const currentHwFingerprint = generateHardwareFingerprint();
+        const currentDeviceFingerprint = `${currentVoterId}_${currentHwFingerprint}`;
+
+        // تجميع (Debounce) تحديثات الواجهة لمنع التهنيج
+        let uiUpdateTimer = null;
+        function scheduleUIUpdate() {
+            if (uiUpdateTimer) return;
+            uiUpdateTimer = setTimeout(() => {
+                uiUpdateTimer = null;
+                updateUI();
+            }, 150);
+        }
+
+        // تحديث إعدادات وبيانات الأدمن بدون التأثير على أصوات المصوتين
+        function persistStructureData() {
+            rootRef.update({
+                cycles: appData.cycles || [],
+                rounds: appData.rounds || [],
+                teams: appData.teams || [],
+                sessions: appData.sessions || [],
+                settings: appData.settings || CLEAN_EMPTY_DATA.settings
+            });
+        }
+
+        // تهيئة أولية
+        rootRef.once('value').then((snapshot) => {
+            if (!snapshot.exists()) {
+                rootRef.set(CLEAN_EMPTY_DATA);
+            }
+        });
+
+        // المستمعين المنفصلين لأقسام النظام
+        structureRefs.cycles.on('value', (snap) => {
+            appData.cycles = snap.val() || [];
+            scheduleUIUpdate();
+        });
+        structureRefs.rounds.on('value', (snap) => {
+            appData.rounds = snap.val() || [];
+            scheduleUIUpdate();
+        });
+        structureRefs.teams.on('value', (snap) => {
+            appData.teams = snap.val() || [];
+            scheduleUIUpdate();
+        });
+        structureRefs.sessions.on('value', (snap) => {
+            appData.sessions = snap.val() || [];
+            scheduleUIUpdate();
+        });
+        structureRefs.settings.on('value', (snap) => {
+            appData.settings = snap.val() || CLEAN_EMPTY_DATA.settings;
+            if (!appData.settings.activeRankingScope) {
+                appData.settings.activeRankingScope = { all: true, cycles: [], rounds: [] };
+            }
+            scheduleUIUpdate();
+        });
+
+        // مستمع الأصوات الذري الصغير
+        function upsertLocalVote(key, v) {
+            if (!v) return;
+            const parsed = {
+                id: key,
+                sessionId: v.sessionId,
+                rating: v.rating,
+                voterIp: v.voterIp,
+                voterFingerprint: v.voterFingerprint || v.voterToken,
+                createdAt: v.createdAt
+            };
+            const idx = appData.votes.findIndex(x => x.id === key);
+            if (idx > -1) appData.votes[idx] = parsed;
+            else appData.votes.push(parsed);
+        }
+
+        votesRef.on('child_added', (snap) => {
+            upsertLocalVote(snap.key, snap.val());
+            scheduleUIUpdate();
+        });
+        votesRef.on('child_changed', (snap) => {
+            upsertLocalVote(snap.key, snap.val());
+            scheduleUIUpdate();
+        });
+        votesRef.on('child_removed', (snap) => {
+            appData.votes = appData.votes.filter(x => x.id !== snap.key);
+            scheduleUIUpdate();
         });
 
         /* ========================================================
@@ -652,20 +761,15 @@
                 "تصفير النظام بالكامل",
                 "هل أنت متأكد من مسح جميع البيانات؟ سيتم مسح الدورات، الجولات، الفرق، وكافة الـ Votes وسيعود النظام فارغاً تماماً.",
                 () => {
-                    appData = JSON.parse(JSON.stringify(CLEAN_EMPTY_DATA));
-                    persistData();
-                    showToast("تم تصفير النظام بالكامل");
+                    const keepSettings = appData.settings;
+                    rootRef.set({
+                        ...CLEAN_EMPTY_DATA,
+                        settings: keepSettings
+                    }).then(() => {
+                        showToast("تم تصفير النظام بالكامل مع الاحتفاظ بالإعدادات");
+                    });
                 }
             );
-        }
-
-        function getVoterToken() {
-            let token = localStorage.getItem('voter_unique_token');
-            if (!token) {
-                token = 'VT-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now();
-                localStorage.setItem('voter_unique_token', token);
-            }
-            return token;
         }
 
         function getSimulatedClientIp() {
@@ -685,7 +789,7 @@
             const count = sessionVotes.length;
             if (count === 0) return { percent: 0, count: 0, sum: 0, average: 0 };
             
-            const sum = sessionVotes.reduce((acc, curr) => acc + curr.rating, 0);
+            const sum = sessionVotes.reduce((acc, curr) => acc + (Number(curr.rating) || 0), 0);
             const percent = ((sum) / (count * 10)) * 100;
             const average = sum / count;
             return {
@@ -732,19 +836,28 @@
             };
         }
 
+        // فحص هل صوّت هذا الجهاز من قبل في هذه الجلسة
+        // يدعم المعرف الجديد بشكل آمن تماماً
         function hasUserVotedInSession(sessionId) {
-            const token = getVoterToken();
-            const ip = getSimulatedClientIp();
-            return appData.votes.some(v => v.sessionId === sessionId && (v.voterToken === token || v.voterIp === ip));
+            return appData.votes.some(v => v.sessionId === sessionId && (
+                v.voterFingerprint === currentDeviceFingerprint || 
+                (v.voterFingerprint && v.voterFingerprint.startsWith(currentVoterId))
+            ));
         }
 
         function getUserVoteForSession(sessionId) {
-            const token = getVoterToken();
-            const ip = getSimulatedClientIp();
-            return appData.votes.find(v => v.sessionId === sessionId && (v.voterToken === token || v.voterIp === ip));
+            return appData.votes.find(v => v.sessionId === sessionId && (
+                v.voterFingerprint === currentDeviceFingerprint || 
+                (v.voterFingerprint && v.voterFingerprint.startsWith(currentVoterId))
+            ));
         }
 
+        /* ========================================================
+           HIGH-CONCURRENCY ATOMIC VOTING
+           ======================================================== */
         function castVote(sessionId, rating) {
+            if (isCastingVote) return;
+
             if (rating < 5 || rating > 10) {
                 showToast("التقييم يجب أن يكون بين 5 و 10 فقط!");
                 return;
@@ -757,22 +870,39 @@
             }
 
             if (hasUserVotedInSession(sessionId)) {
-                showToast("عفواً! لقد سجلت صوتك بالفعل في هذا الـ Vote.");
+                showToast("عفواً! لقد سجل هذا الجهاز صوته بالفعل في هذا الـ Vote.");
                 return;
             }
 
+            isCastingVote = true;
             const newVote = {
-                id: 'v-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
                 sessionId: sessionId,
                 rating: parseInt(rating),
                 voterIp: getSimulatedClientIp(),
-                voterToken: getVoterToken(),
+                voterFingerprint: currentDeviceFingerprint,
                 createdAt: Date.now()
             };
 
-            appData.votes.push(newVote);
-            persistData();
-            showToast(`تم تسجيل صوتك بنجاح (${rating}/10)`);
+            // المفتاح الفريد يجمع معرف الجلسة مع معرف الجهاز الفريد
+            // لن يحدث أي تداخل نهائياً بين هاتفين من نفس الموديل
+            const voteKey = `${sessionId}__${currentDeviceFingerprint}`;
+            
+            votesRef.child(voteKey).transaction((currentData) => {
+                if (currentData === null) {
+                    return newVote;
+                }
+                return; // الصوت مسجل بالفعل لهذا الجهاز في السحابة -> إلغاء الكتابة فوراً
+            }, (err, committed) => {
+                isCastingVote = false;
+                if (err) {
+                    console.error("Vote submission error:", err);
+                    showToast("حدث خطأ أثناء إرسال الصوت، يرجى المحاولة ثانية");
+                } else if (!committed) {
+                    showToast("عفواً! لقد سجلت صوتك بالفعل في هذا الـ Vote.");
+                } else {
+                    showToast(`تم تسجيل صوتك بنجاح (${rating}/10)`);
+                }
+            });
         }
 
         /* ========================================================
@@ -787,7 +917,12 @@
                     const roundsToDelete = appData.rounds.filter(r => r.cycleId === cycleId).map(r => r.id);
                     const sessionsToDelete = appData.sessions.filter(s => s.cycleId === cycleId || roundsToDelete.includes(s.roundId)).map(s => s.id);
                     
-                    appData.votes = appData.votes.filter(v => !sessionsToDelete.includes(v.sessionId));
+                    sessionsToDelete.forEach(sid => {
+                        appData.votes.filter(v => v.sessionId === sid).forEach(v => {
+                            db.ref(`voting_system_data/votes/${v.id}`).remove();
+                        });
+                    });
+
                     appData.sessions = appData.sessions.filter(s => !sessionsToDelete.includes(s.id));
                     appData.rounds = appData.rounds.filter(r => r.cycleId !== cycleId);
                     appData.cycles = appData.cycles.filter(c => c.id !== cycleId);
@@ -797,7 +932,7 @@
                         appData.settings.activeRankingScope.rounds = (appData.settings.activeRankingScope.rounds || []).filter(id => !roundsToDelete.includes(id));
                     }
 
-                    persistData();
+                    persistStructureData();
                     showToast("تم حذف الدورة وتوابعها بنجاح");
                 }
             );
@@ -810,7 +945,13 @@
                 `هل أنت متأكد من حذف ${round?.name || 'الجولة'}؟ سيتم حذف كافة الـ Votes التابعة لها تلقائياً.`,
                 () => {
                     const sessionsToDelete = appData.sessions.filter(s => s.roundId === roundId).map(s => s.id);
-                    appData.votes = appData.votes.filter(v => !sessionsToDelete.includes(v.sessionId));
+                    
+                    sessionsToDelete.forEach(sid => {
+                        appData.votes.filter(v => v.sessionId === sid).forEach(v => {
+                            db.ref(`voting_system_data/votes/${v.id}`).remove();
+                        });
+                    });
+
                     appData.sessions = appData.sessions.filter(s => !sessionsToDelete.includes(s.id));
                     appData.rounds = appData.rounds.filter(r => r.id !== roundId);
 
@@ -818,7 +959,7 @@
                         appData.settings.activeRankingScope.rounds = (appData.settings.activeRankingScope.rounds || []).filter(id => id !== roundId);
                     }
 
-                    persistData();
+                    persistStructureData();
                     showToast("تم حذف الجولة وتوابعها بنجاح");
                 }
             );
@@ -831,11 +972,17 @@
                 `هل أنت متأكد من حذف ${team?.name || 'الفريق'}؟ سيتم حذف جميع جلسات التقييم التابعة له.`,
                 () => {
                     const sessionsToDelete = appData.sessions.filter(s => s.teamId === teamId).map(s => s.id);
-                    appData.votes = appData.votes.filter(v => !sessionsToDelete.includes(v.sessionId));
+                    
+                    sessionsToDelete.forEach(sid => {
+                        appData.votes.filter(v => v.sessionId === sid).forEach(v => {
+                            db.ref(`voting_system_data/votes/${v.id}`).remove();
+                        });
+                    });
+
                     appData.sessions = appData.sessions.filter(s => !sessionsToDelete.includes(s.id));
                     appData.teams = appData.teams.filter(t => t.id !== teamId);
 
-                    persistData();
+                    persistStructureData();
                     showToast("تم حذف الفريق بنجاح");
                 }
             );
@@ -846,9 +993,11 @@
                 "حذف جلسة Vote",
                 "هل أنت متأكد من حذف هذا الـ Vote بالكامل مع أصواته؟",
                 () => {
-                    appData.votes = appData.votes.filter(v => v.sessionId !== sessionId);
+                    appData.votes.filter(v => v.sessionId === sessionId).forEach(v => {
+                        db.ref(`voting_system_data/votes/${v.id}`).remove();
+                    });
                     appData.sessions = appData.sessions.filter(s => s.id !== sessionId);
-                    persistData();
+                    persistStructureData();
                     showToast("تم حذف الـ Vote بنجاح");
                 }
             );
@@ -859,10 +1008,10 @@
                 "حذف الصوت",
                 "هل تريد حذف هذا الصوت الفردي نهائياً من السجل؟",
                 () => {
-                    appData.votes = appData.votes.filter(v => v.id !== voteId);
-                    persistData();
-                    if (currentDrillSessionId) openDrillDownModal(currentDrillSessionId);
-                    showToast("تم حذف الصوت");
+                    db.ref(`voting_system_data/votes/${voteId}`).remove().then(() => {
+                        if (currentDrillSessionId) openDrillDownModal(currentDrillSessionId);
+                        showToast("تم حذف الصوت");
+                    });
                 }
             );
         }
@@ -873,10 +1022,15 @@
                 "تصفير أصوات الجلسة",
                 "هل أنت متأكد من تصفير وحذف جميع الأصوات المسجلة لهذه الجلسة؟",
                 () => {
-                    appData.votes = appData.votes.filter(v => v.sessionId !== currentDrillSessionId);
-                    persistData();
-                    openDrillDownModal(currentDrillSessionId);
-                    showToast("تم تصفير أصوات الجلسة بنجاح");
+                    const votesToRemove = appData.votes.filter(v => v.sessionId === currentDrillSessionId);
+                    const updates = {};
+                    votesToRemove.forEach(v => {
+                        updates[`votes/${v.id}`] = null;
+                    });
+                    rootRef.update(updates).then(() => {
+                        openDrillDownModal(currentDrillSessionId);
+                        showToast("تم تصفير أصوات الجلسة بنجاح");
+                    });
                 }
             );
         }
@@ -885,7 +1039,7 @@
             const s = appData.sessions.find(x => x.id === sessionId);
             if (!s) return;
             s.status = (s.status === 'ACTIVE') ? 'CLOSED' : 'ACTIVE';
-            persistData();
+            persistStructureData();
             showToast(s.status === 'ACTIVE' ? "Vote Opened (Live)" : "Vote Closed");
         }
 
@@ -937,7 +1091,7 @@
                 });
                 showToast("Cycle Added");
             }
-            persistData();
+            persistStructureData();
             closeCycleModal();
         }
 
@@ -999,7 +1153,7 @@
                 });
                 showToast("Round Added");
             }
-            persistData();
+            persistStructureData();
             closeRoundModal();
         }
 
@@ -1064,7 +1218,7 @@
                 showToast("Team Created");
             }
 
-            persistData();
+            persistStructureData();
             closeTeamModal();
         }
 
@@ -1120,7 +1274,7 @@
                     const dataUrl = canvas.toDataURL('image/png');
                     appData.settings.eventLogo = dataUrl;
                     document.getElementById('settingLogoPreview').src = dataUrl;
-                    persistData();
+                    persistStructureData();
                     showToast("تم تحديث لوجو الحدث");
                 };
                 img.src = evt.target.result;
@@ -1203,7 +1357,7 @@
                 showToast("Vote Session Launched Live");
             }
 
-            persistData();
+            persistStructureData();
             closeCreateSessionModal();
         }
 
@@ -1364,7 +1518,7 @@
         }
 
         function saveScopeAndRerender() {
-            persistData();
+            persistStructureData();
             renderMultiScopeSelector();
             renderAdminDynamicRanking();
             renderPublicRanking();
@@ -1535,7 +1689,8 @@
            ======================================================== */
         function renderDrillDownVotesList(sessionId) {
             const list = document.getElementById('drillDownVotesList');
-            const votes = appData.votes.filter(v => v.sessionId === sessionId).reverse();
+            const votes = appData.votes.filter(v => v.sessionId === sessionId)
+                .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
             if (votes.length === 0) {
                 list.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">No votes recorded yet for this session.</div>`;
@@ -1862,7 +2017,7 @@
         function handleAdminLogin(e) {
             e.preventDefault();
             const pass = document.getElementById('adminPasswordInput').value;
-            if (pass === appData.settings.adminPasswordHash) {
+            if (pass === (appData.settings.adminPasswordHash || "123Admin")) {
                 isAdminLoggedIn = true;
                 document.getElementById('adminLoginModal').classList.add('hidden');
                 document.getElementById('voterInterface').classList.add('hidden-app');
@@ -1871,6 +2026,7 @@
                 
                 document.getElementById('settingEventName').value = appData.settings.eventName;
                 document.getElementById('settingLogoPreview').src = appData.settings.eventLogo || "logo.png";
+                document.getElementById('settingAdminPassword').value = "";
 
                 updateUI();
                 showToast("Welcome Admin");
@@ -1932,7 +2088,7 @@
             if (name) appData.settings.eventName = name;
             if (newPass) appData.settings.adminPasswordHash = newPass;
 
-            persistData();
+            persistStructureData();
             showToast("Settings Updated");
         }
 
